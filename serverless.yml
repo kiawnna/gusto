@@ -1,0 +1,219 @@
+service: zoho-api2
+
+layers:
+  ${file(layers.yml)}
+
+provider:
+  name: aws
+  runtime: python3.8
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - secretsmanager:GetSecretValue
+        - secretsmanager:PutSecretValue
+      Resource: '*'
+
+functions:
+#  get_joke_from_layer:
+#    handler: handler.get_joke_from_layer
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/joke
+#          method: get
+#    package:
+#      include:
+#        - app/functions/handler.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+
+#  zoho_authentication:
+#    handler: authenticatetest.authenticate
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/authenticate
+#          method: post
+#    package:
+#      include:
+#        - app/functions/authenticatetest.py
+
+  tickets:
+    handler: ticket.list_tickets
+    module: app/functions
+    events:
+      - http:
+          path: zoho/ticket
+          method: get
+    package:
+      include:
+        - app/functions/ticket.py
+    layers:
+      - {Ref: AuthenticateLambdaLayer}
+#    environment:
+#      secret_id: outputfromsecretresource
+
+#  acount:
+#    handler: account.get_account
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/account
+#          method: get
+#    package:
+#      include:
+#        - app/functions/account.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+#
+#  contact:
+#    handler: contact.list_tickets
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/contact
+#          method: get
+#    package:
+#      include:
+#        - app/functions/contact.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+#
+#  threads:
+#    handler: threads.get_threads
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/threads
+#          method: get
+#    package:
+#      include:
+#        - app/functions/threads.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+#
+#  queue:
+#    handler: queue.queue
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/queue
+#          method: get
+#    package:
+#      include:
+#        - app/functions/queue.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+#
+#  agents:
+#    handler: agents.get_agents
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/agents
+#          method: get
+#    package:
+#      include:
+#        - app/functions/agents.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+#
+#  department:
+#    handler: department.get_department
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/department
+#          method: get
+#    package:
+#      include:
+#        - app/functions/department.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+#
+#  customer_happiness:
+#    handler: customer_happiness.get_customer_happiness
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/customer_happiness
+#          method: get
+#    package:
+#      include:
+#        - app/functions/customer_happiness.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+#
+#  time_entry:
+#    handler: time_entry.get_time_entry
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/time_entry
+#          method: get
+#    package:
+#      include:
+#        - app/functions/time_entry.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+#
+#  agent_time_entry:
+#    handler: agent_time_entry.get_agent_time_entry
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/agent_time_entry
+#          method: get
+#    package:
+#      include:
+#        - app/functions/agent_time_entry.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+#
+#  ticket_tags:
+#    handler: ticket_tags.get_ticket_tags
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/ticket_tags
+#          method: get
+#    package:
+#      include:
+#        - app/functions/ticket_tags.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+#
+#  calls:
+#    handler: calls.get_calls
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/calls
+#          method: get
+#    package:
+#      include:
+#        - app/functions/calls.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+#
+#  notification:
+#    handler: calls.get_notification
+#    module: app/functions
+#    events:
+#      - http:
+#          path: zoho/notification
+#          method: get
+#    package:
+#      include:
+#        - app/functions/notification.py
+#    layers:
+#      - {Ref: CurlLambdaLayer}
+
+plugins:
+  - serverless-python-requirements
+
+package:
+  individually: true
+#  exclude:
+#    - venv/** # virtualenv
