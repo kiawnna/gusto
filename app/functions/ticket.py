@@ -1,5 +1,8 @@
 import zoho_auth
 
+# Path in the name of the secret you are pulling from and the path as an event in lambda.
+# The path: "tickets" returns a list of all tickets.
+
 
 def list_tickets(event, context):
     secret_id = event['secret_id']

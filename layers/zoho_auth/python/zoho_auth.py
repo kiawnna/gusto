@@ -17,6 +17,9 @@ import boto3
 # Desk.articles.CREATE,Desk.articles.UPDATE,Desk.articles.DELETE,Desk.contacts.READ,Desk.contacts.WRITE,
 # Desk.contacts.UPDATE,Desk.contacts.CREATE,Desk.basic.READ,Desk.basic.CREATE,Aaaserver.profile.ALL
 
+# Areas for improvement: needs to return better error messages and invalid_code (expired authorization code) error
+# message instead of KeyError.
+
 
 def call_api(secret_id, path):
     try:
@@ -84,11 +87,9 @@ def call_api(secret_id, path):
             }
             get_access_token = requests.post('https://accounts.zoho.com/oauth/v2/token', params=access_token_params)
             get_access_token_content = json.loads(get_access_token.text)
-            access_token = get_access_token_content['access_token']
-            refresh_token = get_access_token_content['refresh_token']
-            secret['access_token'] = access_token
-            secret['refresh_token'] = refresh_token
-            secret_stuff = client.put_secret_value(
+            secret['access_token'] = get_access_token_content['access_token']
+            secret['refresh_token'] = get_access_token_content['refresh_token']
+            client.put_secret_value(
                 SecretId=secret_id,
                 SecretString=f'{secret}'
             )
@@ -113,11 +114,3 @@ def call_api(secret_id, path):
 # if get_access_token_content['error'] == 'invalid_code':
 #     return 'Please generate a new grant token (code) and save it in the secret. Then try again.'
 # else:
-
-# {
-#   "client_id": "1000.GBRO5D4O2W0L7IA99S1PIQ3D7AUWSH",
-#   "client_secret": "f1b846a3964d048af83aa86c2f98fad7e3d80c18ec",
-#   "redirect_uri": "http://www.kiastests.com/",
-#   "code": "1000.aeb0e5e87cfb4646be8f20df72ab9330.f2260d092fa1c8675711c7f2beb5fec4",
-#   "org_id": "717779554"
-# }
