@@ -2,10 +2,20 @@ import requests
 import json
 import boto3
 
-# Get all of this from self client except redirect_uri.
-# Initially, a self client and web client need to be created. The self client needs to be given the following scopes,
-# separated by commas: . Then, a grant_token (named code below and stored as code) needs to be generated and stored in
-# the secret you pass into the function.
+# Initially, a self-client and web client will need to be created, even if the web client has a dummy redirect_uri
+# value. Gather the below information and input into secretsmanager as json plaintext:
+# {
+#   "client_id": "From self-client",
+#   "client_secret": "From self-client,
+#   "redirect_uri": "from web client",
+#   "code": "authorization code/grant token that is generated from self-client (scope to use is below)",
+#   "org_id": "from zoho desk API settings page"
+# }
+
+# Scope to input for generation of the authorization code. All separated by commas, no spaces (all access):
+# Desk.tickets.ALL,Desk.tasks.ALL,Desk.settings.ALL,Desk.search.READ,Desk.events.ALL,Desk.articles.READ,
+# Desk.articles.CREATE,Desk.articles.UPDATE,Desk.articles.DELETE,Desk.contacts.READ,Desk.contacts.WRITE,
+# Desk.contacts.UPDATE,Desk.contacts.CREATE,Desk.basic.READ,Desk.basic.CREATE,Aaaserver.profile.ALL
 
 
 def call_api(secret_id, path):
@@ -27,22 +37,23 @@ def call_api(secret_id, path):
             try:
                 headers = {'orgId': org_id, 'Authorization': f'Zoho-oauthtoken {access_token}'}
                 call_api_route = requests.get(f'https://desk.zoho.com/api/v1/{path}', headers=headers)
-                payload = call_api_route.json()
-
-                if payload['errorCode'] == "INVALID_OAUTH":
-                    refresh_access_token_params = {
-                        "client_id": client_id,
-                        "client_secret": client_secret,
-                        "refresh_token": refresh_token,
-                        "grant_type": "refresh_token"
-                    }
-                    refresh_access_token = requests.post('https://accounts.zoho.com/oauth/v2/token',
-                                                         params=refresh_access_token_params)
-                    refresh_access_token_content = json.loads(refresh_access_token.text)
-                    access_token = refresh_access_token_content['access_token']
-                    headers = {'orgId': org_id, 'Authorization': f'Zoho-oauthtoken {access_token}'}
-                    call_api_route = requests.get(f'https://desk.zoho.com/api/v1/{path}', headers=headers)
-                    payload = call_api_route.text
+                payload = call_api_route.text
+                print(payload)
+                if 'errorCode' in payload:
+                    if payload['errorCode'] == "INVALID_OAUTH":
+                        refresh_access_token_params = {
+                            "client_id": client_id,
+                            "client_secret": client_secret,
+                            "refresh_token": refresh_token,
+                            "grant_type": "refresh_token"
+                        }
+                        refresh_access_token = requests.post('https://accounts.zoho.com/oauth/v2/token',
+                                                             params=refresh_access_token_params)
+                        refresh_access_token_content = json.loads(refresh_access_token.text)
+                        access_token = refresh_access_token_content['access_token']
+                        headers = {'orgId': org_id, 'Authorization': f'Zoho-oauthtoken {access_token}'}
+                        call_api_route = requests.get(f'https://desk.zoho.com/api/v1/{path}', headers=headers)
+                        payload = call_api_route.json()
 
                     return {
                         'statusCode': 200,
@@ -72,21 +83,41 @@ def call_api(secret_id, path):
                 "prompt": "consent"
             }
             get_access_token = requests.post('https://accounts.zoho.com/oauth/v2/token', params=access_token_params)
-            response_get_access_token = json.loads(get_access_token.text)
-            access_token = response_get_access_token['access_token']
-            refresh_token = response_get_access_token['refresh_token']
-            add_tokens_to_secret = client.put_secret_value(
+            get_access_token_content = json.loads(get_access_token.text)
+            access_token = get_access_token_content['access_token']
+            refresh_token = get_access_token_content['refresh_token']
+            secret['access_token'] = access_token
+            secret['refresh_token'] = refresh_token
+            secret_stuff = client.put_secret_value(
                 SecretId=secret_id,
-                SecretString=[{"access_token": access_token}, {"refresh_token": refresh_token}]
+                SecretString=f'{secret}'
             )
-            headers = {'orgId': org_id, 'Authorization': f'Zoho-oauthtoken {access_token}'}
-            call_api_route = requests.get(f'https://desk.zoho.com/api/v1/{path}', headers=headers)
-            payload = call_api_route.text
+            try:
+                headers = {'orgId': org_id, 'Authorization': f'Zoho-oauthtoken {access_token}'}
+                call_api_route = requests.get(f'https://desk.zoho.com/api/v1/{path}', headers=headers)
+                payload = call_api_route.text
 
-            return {
-                'statusCode': 200,
-                'body': json.loads(payload)
-            }
-
+                return {
+                    'statusCode': 200,
+                    'body': json.loads(payload)
+                }
+            except Exception as e:
+                return {
+                    'statusCode': 500,
+                    'body': str(e)
+                }
     except Exception as e:
         return e
+
+
+# if get_access_token_content['error'] == 'invalid_code':
+#     return 'Please generate a new grant token (code) and save it in the secret. Then try again.'
+# else:
+
+# {
+#   "client_id": "1000.GBRO5D4O2W0L7IA99S1PIQ3D7AUWSH",
+#   "client_secret": "f1b846a3964d048af83aa86c2f98fad7e3d80c18ec",
+#   "redirect_uri": "http://www.kiastests.com/",
+#   "code": "1000.aeb0e5e87cfb4646be8f20df72ab9330.f2260d092fa1c8675711c7f2beb5fec4",
+#   "org_id": "717779554"
+# }

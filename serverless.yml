@@ -12,6 +12,7 @@ provider:
       Action:
         - secretsmanager:GetSecretValue
         - secretsmanager:PutSecretValue
+        - secretsmanager:UpdateSecret
       Resource: '*'
 
 functions:
