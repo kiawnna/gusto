@@ -1,8 +1,3 @@
-#curl:
-#  path: layers/zoho_auth
-#  compatibleRuntimes:
-#    - python3.8
-
 authenticate:
   path: layers/zoho_auth
   compatibleRuntimes:

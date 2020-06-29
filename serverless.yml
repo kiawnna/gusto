@@ -12,34 +12,9 @@ provider:
       Action:
         - secretsmanager:GetSecretValue
         - secretsmanager:PutSecretValue
-        - secretsmanager:UpdateSecret
       Resource: '*'
 
 functions:
-#  get_joke_from_layer:
-#    handler: handler.get_joke_from_layer
-#    module: app/functions
-#    events:
-#      - http:
-#          path: zoho/joke
-#          method: get
-#    package:
-#      include:
-#        - app/functions/handler.py
-#    layers:
-#      - {Ref: CurlLambdaLayer}
-
-#  zoho_authentication:
-#    handler: authenticatetest.authenticate
-#    module: app/functions
-#    events:
-#      - http:
-#          path: zoho/authenticate
-#          method: post
-#    package:
-#      include:
-#        - app/functions/authenticatetest.py
-
   tickets:
     handler: ticket.list_tickets
     module: app/functions
@@ -52,8 +27,6 @@ functions:
         - app/functions/ticket.py
     layers:
       - {Ref: AuthenticateLambdaLayer}
-#    environment:
-#      secret_id: outputfromsecretresource
 
 #  acount:
 #    handler: account.get_account
@@ -216,5 +189,4 @@ plugins:
 
 package:
   individually: true
-#  exclude:
-#    - venv/** # virtualenv
+

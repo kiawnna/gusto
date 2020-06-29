@@ -109,8 +109,3 @@ def call_api(secret_id, path):
                 }
     except Exception as e:
         return e
-
-
-# if get_access_token_content['error'] == 'invalid_code':
-#     return 'Please generate a new grant token (code) and save it in the secret. Then try again.'
-# else:
