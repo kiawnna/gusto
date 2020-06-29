@@ -40,7 +40,7 @@ def call_api(secret_id, path):
             try:
                 headers = {'orgId': org_id, 'Authorization': f'Zoho-oauthtoken {access_token}'}
                 call_api_route = requests.get(f'https://desk.zoho.com/api/v1/{path}', headers=headers)
-                payload = call_api_route.text
+                payload = json.loads(call_api_route.text)
                 print(payload)
                 if 'errorCode' in payload:
                     if payload['errorCode'] == "INVALID_OAUTH":
@@ -56,7 +56,7 @@ def call_api(secret_id, path):
                         access_token = refresh_access_token_content['access_token']
                         headers = {'orgId': org_id, 'Authorization': f'Zoho-oauthtoken {access_token}'}
                         call_api_route = requests.get(f'https://desk.zoho.com/api/v1/{path}', headers=headers)
-                        payload = call_api_route.json()
+                        payload = call_api_route.text
 
                     return {
                         'statusCode': 200,
