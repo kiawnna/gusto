@@ -2,28 +2,23 @@ import requests
 import json
 import boto3
 
-# Initially, a self-client and web client will need to be created, even if the web client has a dummy redirect_uri
-# value. Gather the below information and input into secretsmanager as json plaintext:
-# {
-#   "client_id": "From self-client",
-#   "client_secret": "From self-client,
-#   "redirect_uri": "from web client",
-#   "code": "authorization code/grant token that is generated from self-client (scope to use is below)",
-#   "org_id": "from zoho desk API settings page"
-# }
 
-# Scope to input for generation of the authorization code. All separated by commas, no spaces (all access):
-# Desk.tickets.ALL,Desk.tasks.ALL,Desk.settings.ALL,Desk.search.READ,Desk.events.ALL,Desk.articles.READ,
-# Desk.articles.CREATE,Desk.articles.UPDATE,Desk.articles.DELETE,Desk.contacts.READ,Desk.contacts.WRITE,
-# Desk.contacts.UPDATE,Desk.contacts.CREATE,Desk.basic.READ,Desk.basic.CREATE,Aaaserver.profile.ALL
-
-# Areas for improvement: needs to return better error messages and invalid_code (expired authorization code) error
-# message instead of KeyError.
+def handle_error(e):
+    # Should be a layer later.
+    message = e.response['Error']['Message']
+    status_code = e.response['ResponseMetadata']['HTTPStatusCode']
+    return {
+        "statusCode": status_code,
+        "body": message
+    }
+#
+# def call_api(access_token, path):
+#
 
 
-def call_api(secret_id, path):
+def main(secret_id, path):
+    client = boto3.client('secretsmanager')
     try:
-        client = boto3.client('secretsmanager')
         response = client.get_secret_value(
             SecretId=secret_id
         )
@@ -32,80 +27,112 @@ def call_api(secret_id, path):
         client_secret = secret['client_secret']
         redirect_uri = secret['redirect_uri']
         code = secret['code']
-        org_id = secret['org_id']
 
         if 'access_token' in secret:
             access_token = secret['access_token']
             refresh_token = secret['refresh_token']
             try:
-                headers = {'orgId': org_id, 'Authorization': f'Zoho-oauthtoken {access_token}'}
-                call_api_route = requests.get(f'https://desk.zoho.com/api/v1/{path}', headers=headers)
-                payload = json.loads(call_api_route.text)
-                print(payload)
-                if 'errorCode' in payload:
-                    if payload['errorCode'] == "INVALID_OAUTH":
-                        refresh_access_token_params = {
-                            "client_id": client_id,
-                            "client_secret": client_secret,
-                            "refresh_token": refresh_token,
-                            "grant_type": "refresh_token"
-                        }
-                        refresh_access_token = requests.post('https://accounts.zoho.com/oauth/v2/token',
-                                                             params=refresh_access_token_params)
-                        refresh_access_token_content = json.loads(refresh_access_token.text)
-                        access_token = refresh_access_token_content['access_token']
-                        headers = {'orgId': org_id, 'Authorization': f'Zoho-oauthtoken {access_token}'}
-                        call_api_route = requests.get(f'https://desk.zoho.com/api/v1/{path}', headers=headers)
-                        payload = call_api_route.text
+                headers = {'Authorization': f'Bearer {access_token}'}
+                call_api_route = requests.get(f'https://api.gusto-demo.com/v1/{path}', headers=headers)
+                header_string = str(call_api_route.headers)
+
+                if 'invalid_token' in header_string:
+                    refresh_access_token_params = {
+                        "client_id": client_id,
+                        "client_secret": client_secret,
+                        "redirect_uri": redirect_uri,
+                        "refresh_token": refresh_token,
+                        "grant_type": "refresh_token"
+                    }
+                    refresh_access_token = requests.post('https://api.gusto-demo.com/oauth/token',
+                                                         params=refresh_access_token_params)
+                    refresh_access_token_content = json.loads(refresh_access_token.text)
+                    secret['access_token'] = refresh_access_token_content['access_token']
+                    secret['refresh_token'] = refresh_access_token_content['refresh_token']
+                    client.put_secret_value(
+                        SecretId='gusto_auth',
+                        SecretString=f'{secret}'
+                    )
+                    access_token = secret['access_token']
+                    refresh_token = secret['refresh_token']
+                    headers = {'Authorization': f'Bearer {access_token}'}
+                    call_api_route = requests.get(f'https://api.gusto-demo.com/v1/{path}', headers=headers)
+                    payload = json.loads(call_api_route.text)
 
                     return {
                         'statusCode': 200,
-                        'body': json.loads(payload)
+                        'body': json.dumps(payload)
                     }
 
                 else:
+                    payload = json.loads(call_api_route.text)
                     return {
                         'statusCode': 200,
-                        'body': json.loads(payload)
+                        'body': json.dumps(payload)
                     }
 
             except Exception as e:
                 return {
                     'statusCode': 500,
-                    'body': str(e)
+                    'body': json.dumps(str(e))
                 }
 
         else:
             access_token_params = {
-                "code": code,
-                "client_id": client_id,
-                "client_secret": client_secret,
-                "grant_type": "authorization_code",
-                "redirect_uri": redirect_uri,
-                "access_type": "offline",
-                "prompt": "consent"
+                'client_id': f'{client_id}',
+                'client_secret': f'{client_secret}',
+                'code': f'{code}',
+                'grant_type': 'authorization_code',
+                'redirect_uri': f'{redirect_uri}'
             }
-            get_access_token = requests.post('https://accounts.zoho.com/oauth/v2/token', params=access_token_params)
-            get_access_token_content = json.loads(get_access_token.text)
-            secret['access_token'] = get_access_token_content['access_token']
-            secret['refresh_token'] = get_access_token_content['refresh_token']
-            client.put_secret_value(
-                SecretId=secret_id,
-                SecretString=f'{secret}'
-            )
-            try:
-                headers = {'orgId': org_id, 'Authorization': f'Zoho-oauthtoken {access_token}'}
-                call_api_route = requests.get(f'https://desk.zoho.com/api/v1/{path}', headers=headers)
-                payload = call_api_route.text
+            url = 'https://api.gusto-demo.com/oauth/token'
 
-                return {
-                    'statusCode': 200,
-                    'body': json.loads(payload)
-                }
-            except Exception as e:
-                return {
-                    'statusCode': 500,
-                    'body': str(e)
-                }
+            get_access_token = requests.post(url=url, params=access_token_params)
+            get_access_token_content = json.loads(get_access_token.text)
+            if 'error' in get_access_token_content:
+                if get_access_token_content['error'] == "invalid_grant":
+                    return {
+                        'statusCode': 400,
+                        'body': get_access_token_content
+                    }
+            else:
+                secret['access_token'] = get_access_token_content['access_token']
+                secret['refresh_token'] = get_access_token_content['refresh_token']
+                client.put_secret_value(
+                    SecretId='gusto_auth',
+                    SecretString=f'{secret}'
+                )
+                access_token = secret['access_token']
+                refresh_token = secret['refresh_token']
+                try:
+                    headers = {'Authorization': f'Bearer {access_token}'}
+                    call_api_route = requests.get(f'https://api.gusto-demo.com/v1/{path}', headers=headers)
+                    payload = call_api_route.text
+
+                    return {
+                        'statusCode': 200,
+                        'body': json.loads(payload)
+                    }
+                except Exception as e:
+                    return {
+                        'statusCode': 501,
+                        'body': str(e)
+                    }
+
     except Exception as e:
-        return e
+        return {
+            'statusCode': 501,
+            'body': str(e)
+        }
+
+    except client.exceptions.ResourceNotFoundException as e:
+        return handle_error(e)
+    except client.exceptions.InvalidParameterException as e:
+        return handle_error(e)
+    except client.exceptions.InvalidRequestException as e:
+        return handle_error(e)
+    except client.exceptions.DecryptionFailure as e:
+        return handle_error(e)
+    except client.exceptions.InternalServiceError as e:
+        return handle_error(e)
+
