@@ -5,6 +5,7 @@ import boto3
 # Gather the below information and input into Secrets Manager as json plaintext:
 # Put the code you received from the url after the initial authentication as "code": "your code here" into the secret in
 # Secrets Manager.
+# Need to test from scratch. Refreshing works.
 
 
 def handle_error(e):
@@ -27,42 +28,31 @@ def main(event, context):
             SecretId='gusto_auth'
         )
         secret = eval(response['SecretString'])
-        client_id = secret['client_id']
-        client_secret = secret['client_secret']
-        redirect_uri = secret['redirect_uri']
-        code = secret['code']
 
         if 'access_token' in secret:
-            access_token = secret['access_token']
-            refresh_token = secret['refresh_token']
-
             try:
-                headers = {'Authorization': f'Bearer {access_token}'}
+                headers = {'Authorization': f'Bearer {secret["access_token"]}'}
                 call_api_route = requests.get(f'https://api.gusto-demo.com/v1/{path}', headers=headers)
                 header_string = str(call_api_route.headers)
 
                 if 'invalid_token' in header_string:
                     refresh_access_token_params = {
-                        "client_id": client_id,
-                        "client_secret": client_secret,
-                        "redirect_uri": redirect_uri,
-                        "refresh_token": refresh_token,
+                        "client_id": secret['client_id'],
+                        "client_secret": secret['client_secret'],
+                        "redirect_uri": secret['redirect_uri'],
+                        "refresh_token": secret['refresh_token'],
                         "grant_type": "refresh_token"
                     }
                     refresh_access_token = requests.post('https://api.gusto-demo.com/oauth/token',
-                                                         params=refresh_access_token_params)
-                    refresh_access_token_content = json.loads(refresh_access_token.text)
-                    secret['access_token'] = refresh_access_token_content['access_token']
-                    secret['refresh_token'] = refresh_access_token_content['refresh_token']
+                                                         params=refresh_access_token_params).json()
+                    secret['access_token'] = refresh_access_token['access_token']
+                    secret['refresh_token'] = refresh_access_token['refresh_token']
                     client.put_secret_value(
                         SecretId='gusto_auth',
                         SecretString=f'{secret}'
                     )
-                    access_token = secret['access_token']
-                    refresh_token = secret['refresh_token']
-                    headers = {'Authorization': f'Bearer {access_token}'}
-                    call_api_route = requests.get(f'https://api.gusto-demo.com/v1/{path}', headers=headers)
-                    payload = json.loads(call_api_route.text)
+                    headers = {'Authorization': f'Bearer {secret["access_token"]}'}
+                    payload = requests.get(f'https://api.gusto-demo.com/v1/{path}', headers=headers).json()
 
                     return {
                         'statusCode': 200,
@@ -70,7 +60,7 @@ def main(event, context):
                     }
 
                 else:
-                    payload = json.loads(call_api_route.text)
+                    payload = call_api_route.json()
                     return {
                         'statusCode': 200,
                         'body': json.dumps(payload)
@@ -84,35 +74,31 @@ def main(event, context):
 
         else:
             access_token_params = {
-                'client_id': f'{client_id}',
-                'client_secret': f'{client_secret}',
-                'code': f'{code}',
+                'client_id': secret['client_id'],
+                'client_secret': secret['client_secret'],
+                'code': secret['code'],
                 'grant_type': 'authorization_code',
-                'redirect_uri': f'{redirect_uri}'
+                'redirect_uri': secret['redirect_uri']
             }
             url = 'https://api.gusto-demo.com/oauth/token'
 
-            get_access_token = requests.post(url=url, params=access_token_params)
-            get_access_token_content = json.loads(get_access_token.text)
-            if 'error' in get_access_token_content:
-                if get_access_token_content['error'] == "invalid_grant":
+            get_access_token = requests.post(url=url, params=access_token_params).json()
+            if 'error' in get_access_token:
+                if get_access_token['error'] == "invalid_grant":
                     return {
                         'statusCode': 400,
-                        'body': get_access_token_content
+                        'body': get_access_token
                     }
             else:
-                secret['access_token'] = get_access_token_content['access_token']
-                secret['refresh_token'] = get_access_token_content['refresh_token']
+                secret['access_token'] = get_access_token['access_token']
+                secret['refresh_token'] = get_access_token['refresh_token']
                 client.put_secret_value(
                     SecretId='gusto_auth',
                     SecretString=f'{secret}'
                 )
-                access_token = secret['access_token']
-                refresh_token = secret['refresh_token']
                 try:
-                    headers = {'Authorization': f'Bearer {access_token}'}
-                    call_api_route = requests.get(f'https://api.gusto-demo.com/v1/{path}', headers=headers)
-                    payload = call_api_route.text
+                    headers = {'Authorization': f'Bearer {secret["access_token"]}'}
+                    payload = requests.get(f'https://api.gusto-demo.com/v1/{path}', headers=headers).json()
 
                     return {
                         'statusCode': 200,

@@ -2,15 +2,15 @@ import requests
 import json
 import boto3
 
-# Gather the below information and input into Secrets Manager as json plaintext:
-# {
-#   "client_id": "your client id",
-#   "client_secret": "your client secret",
-#   "redirect_uri": "percent-encoded url you submitted when signing up > for the Gusto API. Should the user accept
-#   integration, the user will be returned to this url with the code parameter set to the authorization > code."
-# }
 
-# Pass in the "secret_id": "the name of the secret" when calling this function.
+def handle_error(e):
+    # Should be a layer later.
+    message = e.response['Error']['Message']
+    status_code = e.response['ResponseMetadata']['HTTPStatusCode']
+    return {
+        "statusCode": status_code,
+        "body": message
+    }
 
 
 def main(event, context):
@@ -44,37 +44,12 @@ def main(event, context):
         }
 
     except client.exceptions.ResourceNotFoundException as e:
-        message = e.response['Error']['Message']
-        status_code = e.response['ResponseMetadata']['HTTPStatusCode']
-        return {
-            "statusCode": status_code,
-            "body": message
-        }
+        return handle_error(e)
     except client.exceptions.InvalidParameterException as e:
-        message = e.response['Error']['Message']
-        status_code = e.response['ResponseMetadata']['HTTPStatusCode']
-        return {
-            "statusCode": status_code,
-            "body": message
-        }
+        return handle_error(e)
     except client.exceptions.InvalidRequestException as e:
-        message = e.response['Error']['Message']
-        status_code = e.response['ResponseMetadata']['HTTPStatusCode']
-        return {
-            "statusCode": status_code,
-            "body": message
-        }
+        return handle_error(e)
     except client.exceptions.DecryptionFailure as e:
-        message = e.response['Error']['Message']
-        status_code = e.response['ResponseMetadata']['HTTPStatusCode']
-        return {
-            "statusCode": status_code,
-            "body": message
-        }
+        return handle_error(e)
     except client.exceptions.InternalServiceError as e:
-        message = e.response['Error']['Message']
-        status_code = e.response['ResponseMetadata']['HTTPStatusCode']
-        return {
-            "statusCode": status_code,
-            "body": message
-        }
+        return handle_error(e)
