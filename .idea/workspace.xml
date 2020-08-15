@@ -20,12 +20,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5182c11b-6a15-4f78-8dbf-5f95ba9e6511" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/functions/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/functions/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/functions/initial_auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/functions/initial_auth.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/functions/payrolls.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/functions/payrolls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/layers/zoho_auth/python/zoho_auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/layers/zoho_auth/python/zoho_auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/serverless.yml" beforeDir="false" afterPath="$PROJECT_DIR$/serverless.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,7 +77,7 @@
       <workItem from="1596547586470" duration="25000" />
       <workItem from="1597144161763" duration="3874000" />
       <workItem from="1597191370380" duration="2097000" />
-      <workItem from="1597365187257" duration="27896000" />
+      <workItem from="1597365187257" duration="30655000" />
     </task>
     <servers />
   </component>

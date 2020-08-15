@@ -73,6 +73,8 @@ functions:
 
   payrolls:
     handler: payrolls.main
+    environment:
+      BUCKET: ${self:resources.Resources.GustoPayrollBucket.Properties.BucketName}
     module: app/functions
     events:
       - http:
