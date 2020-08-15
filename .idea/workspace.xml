@@ -20,20 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5182c11b-6a15-4f78-8dbf-5f95ba9e6511" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/functions/create_company.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/functions/employees.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/functions/initial_auth.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/functions/payrolls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/functions/payrolls_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/functions/readme.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/functions/account.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/functions/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/functions/contact.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/functions/handler.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/functions/threads.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/functions/companies.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/functions/ticket.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/layers/zoho_auth/python/zoho_auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/layers/zoho_auth/python/zoho_auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverless.yml" beforeDir="false" afterPath="$PROJECT_DIR$/serverless.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,7 +75,7 @@
       <workItem from="1596547586470" duration="25000" />
       <workItem from="1597144161763" duration="3874000" />
       <workItem from="1597191370380" duration="2097000" />
-      <workItem from="1597365187257" duration="22751000" />
+      <workItem from="1597365187257" duration="22931000" />
     </task>
     <servers />
   </component>
