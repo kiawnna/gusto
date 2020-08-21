@@ -38,16 +38,20 @@ functions:
       include:
         - app/functions/create_copmany.py
 
-#  companies:
-#    handler: companies.main
-#    module: app/functions
-#    events:
-#      - http:
-#          path: /companies
-#          method: get
-#    package:
-#      include:
-#        - app/functions/companies.py
+  companies:
+    handler: companies.main
+    environment:
+      BUCKET: ${self:resources.Resources.GustoPayrollBucket.Properties.BucketName}
+    module: app/functions
+    events:
+      - http:
+          path: /companies
+          method: post
+    package:
+      include:
+        - app/functions/companies.py
+    layers:
+      - {Ref: AuthenticateLambdaLayer}
 
   initial_auth:
     handler: initial_auth.main
@@ -60,16 +64,16 @@ functions:
       include:
         - app/functions/initial_auth.py
 
-  auth:
-    handler: auth.main
-    module: app/functions
-    events:
-      - http:
-          path: /auth
-          method: post
-    package:
-      include:
-        - app/functions/auth.py
+#  auth:
+#    handler: auth.main
+#    module: app/functions
+#    events:
+#      - http:
+#          path: /auth
+#          method: post
+#    package:
+#      include:
+#        - app/functions/auth.py
 
   payrolls:
     handler: payrolls.main
@@ -86,19 +90,19 @@ functions:
     layers:
       - {Ref: AuthenticateLambdaLayer}
 
-  payrolls_test:
-    handler: payrolls_test.main
-    environment:
-      BUCKET: ${self:resources.Resources.GustoPayrollBucket.Properties.BucketName}
-#      REGION: us-west-1
-    module: app/functions
-    events:
-      - http:
-          path: /payrolls_test
-          method: post
-    package:
-      include:
-        - app/functions/payrolls_test.py
+#  payrolls_test:
+#    handler: payrolls_test.main
+#    environment:
+#      BUCKET: ${self:resources.Resources.GustoPayrollBucket.Properties.BucketName}
+##      REGION: us-west-1
+#    module: app/functions
+#    events:
+#      - http:
+#          path: /payrolls_test
+#          method: post
+#    package:
+#      include:
+#        - app/functions/payrolls_test.py
 
   employees:
     handler: employees.main

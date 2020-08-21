@@ -11,7 +11,6 @@ def main(event, context):
     s3 = boto3.client('s3')
     body = json.loads(event['body'])
     secret_id = body['secret_id']
-    print(secret_id)
     company_id = body['company_id']
     path = f'companies/{company_id}/payrolls'
     try:

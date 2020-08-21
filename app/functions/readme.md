@@ -10,6 +10,7 @@ Initially, a secret needs to be stored in AWS Secrets Manager, as plain text jso
   integration, the user will be returned to this url with the code parameter set to the authorization > code."
 }
 ```
+________________
 ## Authentication
 Gusto outlines the authentication flow the following way:
 * Direct user to authorize
@@ -29,6 +30,7 @@ once user authorizes the application to access their information. An example url
 2) Make an initial API call within 10 minutes or the authorization code will expire and the process above
 will need to be repeated. Access and refresh tokens will be securely saved in AWS Secrets Manager for future use.
 
+________________
 ## Functions / API Calls
 ### POST `create_company`
 The `create_company` function will, per the Gusto docs:
@@ -39,7 +41,8 @@ The `create_company` function will, per the Gusto docs:
 The function will return an account claim url from Gusto, which allows a user to complete their account
 setup inside of Gusto.
 
-The following needs to be passed in as raw json in the body of the call:
+The following is the minimum accepted payload that can be used to create a company. For more fields please see Gusto's
+docs.
 ```
 {
   "first_name": "user's first name",
@@ -49,19 +52,34 @@ The following needs to be passed in as raw json in the body of the call:
 }
 ```
 ### POST `payrolls`
-Calling the `payrolls` endpoint will return two json objects: one with all employee compensation information, and one
-the other payroll details. This endpoint returns all payrolls for a specific company, current and past.
+Calling the `payrolls` endpoint will store three json objects in an S3 bucket created upon initial deployment. The three
+json files returned are as follows:
+- A replica of the entire output from calling the Gusto payrolls endpoint
+- A file containing **only** employee compensation information
+- A file containing **only** the other payroll details not associated with employee compensation
 
-Pass in the company_id in raw json as below:
+This endpoint returns all payrolls for a specific company, current and past.
+
+**Pass in the `company_id` and `secret_id` in raw json as shown below:**
+```
+{
+ "company_id": "company id",
+ "secret_id": "the name of the secret you created earlier"
+}
+```
+
+-------------------------------------------------
+# EXTRA STUFF
+### POST `companies`
+If you do not know the company id for the company you'd like to fetch payrolls for, call the `companies` route, which
+lists all companies and their information, including ids.
+
+You can also obtain all company details about a specific company associated with your account by calling passing in the
+company id as raw json, shown below:
 ```
 {
  "company_id": "company id"
 }
 ```
-This endpoint will also: create a bucket called `gusto-dev` (if it doesn't already exist) and store employee
-compensation information, other payroll details, as well as all information together as separate json files.
 
-### GET `companies`
-If you do not know the company id for the company you'd like to fetch payrolls for, call the `companies` route, which
-lists all companies and their information, including ids.
-
+## MAYBE COMPANIES NEEDS TO BE POST?
