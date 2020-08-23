@@ -1,6 +1,7 @@
 import requests
 import json
 import boto3
+import os
 
 
 def handle_error(e):
@@ -15,8 +16,7 @@ def handle_error(e):
 
 def main(event, context):
     client = boto3.client('secretsmanager')
-    body = json.loads(event['body'])
-    secret_id = body['secret_id']
+    secret_id = os.environ['SECRET_ID']
     try:
         response = client.get_secret_value(
             SecretId=secret_id

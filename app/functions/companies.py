@@ -1,8 +1,9 @@
+from app import gusto_auth
 import json
-import zoho_auth
 
 # TODO: Store company info in S3.
 # TODO: Fix the response. It looks funny. Or just upload to S3 and return a message.
+
 
 def main(event, context):
     try:
@@ -15,7 +16,7 @@ def main(event, context):
         # else:
         #     path = 'companies'
         # #
-        response = zoho_auth.main(secret_id, path)
+        response = gusto_auth.main(secret_id, path)
         # json.loads(response)
         print(response)
         return {

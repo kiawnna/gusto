@@ -1,11 +1,7 @@
 import requests
 import json
 import boto3
-
-# Gather the below information and input into Secrets Manager as json plaintext:
-# Put the code you received from the url after the initial authentication as "code": "your code here" into the secret in
-# Secrets Manager.
-# Need to test from scratch. Refreshing works.
+import os
 
 
 def handle_error(e):
@@ -18,14 +14,15 @@ def handle_error(e):
     }
 
 
-def main(event, context):
+def main(path):
+    secret_id = os.environ['SECRET_ID']
     client = boto3.client('secretsmanager')
-    body = json.loads(event['body'])
-    path = body['path']
+    # body = json.loads(event['body'])
+    # path = body['path']
     try:
         # will get secret_id from functions that need to authenticate with this layer. currently hard-coded
         response = client.get_secret_value(
-            SecretId='gusto_auth'
+            SecretId=secret_id
         )
         secret = eval(response['SecretString'])
 
@@ -48,7 +45,7 @@ def main(event, context):
                     secret['access_token'] = refresh_access_token['access_token']
                     secret['refresh_token'] = refresh_access_token['refresh_token']
                     client.put_secret_value(
-                        SecretId='gusto_auth',
+                        SecretId=secret_id,
                         SecretString=f'{secret}'
                     )
                     headers = {'Authorization': f'Bearer {secret["access_token"]}'}
@@ -93,7 +90,7 @@ def main(event, context):
                 secret['access_token'] = get_access_token['access_token']
                 secret['refresh_token'] = get_access_token['refresh_token']
                 client.put_secret_value(
-                    SecretId='gusto_auth',
+                    SecretId=secret_id,
                     SecretString=f'{secret}'
                 )
                 try:

@@ -2,7 +2,9 @@
   "name": "zoho-api2",
   "description": "",
   "version": "0.1.0",
-  "dependencies": {},
+  "dependencies": {
+    "serverless-pseudo-parameters": "^2.5.0"
+  },
   "devDependencies": {
     "serverless-python-requirements": "^5.1.0"
   }

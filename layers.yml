@@ -1,4 +1,0 @@
-authenticate:
-  path: layers/zoho_auth
-  compatibleRuntimes:
-    - python3.8

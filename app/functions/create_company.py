@@ -23,7 +23,6 @@ def main(event, context):
         result = requests.post('https://api.gusto-demo.com/v1/provision',
                                headers=headers, data=json.dumps(payload))
 
-        # response = json.loads(result.text)
         return {
             "statusCode": result.status_code,
             "body": result.text

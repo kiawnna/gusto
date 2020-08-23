@@ -1,35 +1,50 @@
-service: gusto
-
-layers:
-  ${file(layers.yml)}
-
-resources:
-  Resources:
-    GustoPayrollBucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: gusto-dev-payrolls
-
+service: gustov2
+# TODO: ACCOUNT ID NEEDS TO BE ENV VARIABLE--CURRENTLY HARDCODED IN BUCKETNAME.
 provider:
   name: aws
   runtime: python3.8
   region: us-east-1
+  environment:
+    BUCKET: ${self:resources.Resources.GustoBucket.Properties.BucketName}
+    SECRET_ID: gusto_auth
+#    ACCOUNT_ID: 266245855374
   iamRoleStatements:
     - Effect: Allow
       Action:
         - secretsmanager:GetSecretValue
         - secretsmanager:PutSecretValue
         - s3:PutObject
-        - s3:ListBucket
         - s3:CreateBucket
-        - s3:ListAllMyBuckets
       Resource: '*'
+
+package:
+  individually: true
+  exclude:
+    - app/functions
+    - node_modules/**
+    - venv/**
+
+plugins:
+  - serverless-python-requirements
+
+resources:
+  Resources:
+    GustoBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: gusto-payrolls-266245855374
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+
 
 
 functions:
+  # TODO: Check and see of auth is handled for create_company.
   create_company:
-    handler: create_company.main
-    module: app/functions
+    handler: app/functions/create_company.main
     events:
       - http:
           path: /create_company
@@ -37,12 +52,10 @@ functions:
     package:
       include:
         - app/functions/create_copmany.py
+        - app/gusto_auth.py
 
   companies:
-    handler: companies.main
-    environment:
-      BUCKET: ${self:resources.Resources.GustoPayrollBucket.Properties.BucketName}
-    module: app/functions
+    handler: app/functions/companies.main
     events:
       - http:
           path: /companies
@@ -50,12 +63,10 @@ functions:
     package:
       include:
         - app/functions/companies.py
-    layers:
-      - {Ref: AuthenticateLambdaLayer}
+        - app/gusto_auth.py
 
   initial_auth:
-    handler: initial_auth.main
-    module: app/functions
+    handler: app/functions/initial_auth.main
     events:
       - http:
           path: /initial_auth
@@ -64,22 +75,8 @@ functions:
       include:
         - app/functions/initial_auth.py
 
-#  auth:
-#    handler: auth.main
-#    module: app/functions
-#    events:
-#      - http:
-#          path: /auth
-#          method: post
-#    package:
-#      include:
-#        - app/functions/auth.py
-
   payrolls:
-    handler: payrolls.main
-    environment:
-      BUCKET: ${self:resources.Resources.GustoPayrollBucket.Properties.BucketName}
-    module: app/functions
+    handler: app/functions/payrolls.main
     events:
       - http:
           path: /payrolls
@@ -87,38 +84,4 @@ functions:
     package:
       include:
         - app/functions/payrolls.py
-    layers:
-      - {Ref: AuthenticateLambdaLayer}
-
-#  payrolls_test:
-#    handler: payrolls_test.main
-#    environment:
-#      BUCKET: ${self:resources.Resources.GustoPayrollBucket.Properties.BucketName}
-##      REGION: us-west-1
-#    module: app/functions
-#    events:
-#      - http:
-#          path: /payrolls_test
-#          method: post
-#    package:
-#      include:
-#        - app/functions/payrolls_test.py
-
-  employees:
-    handler: employees.main
-    module: app/functions
-    events:
-      - http:
-          path: /employees
-          method: post
-    package:
-      include:
-        - app/functions/employees.py
-    layers:
-      - {Ref: AuthenticateLambdaLayer}
-
-plugins:
-  - serverless-python-requirements
-package:
-  individually: true
-
+        - app/gusto_auth.py

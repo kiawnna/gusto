@@ -21,9 +21,8 @@ Gusto outlines the authentication flow the following way:
 * Exchange refresh token for new access/refresh tokens
 
 **There are two parts to authenticating with the Gusto API that involve user input:**
-1) Call the GET `initial_auth` function, passing in the **secret_id (name of the secret)**
-that was created previously, and collect the authorization code from the redirect_uri
-once user authorizes the application to access their information. An example url and code is below.
+1) Call the GET `initial_auth` function and collect the authorization code from the redirect_uri
+Once user authorizes the application to access their information. An example url and code is below.
     * https://example.com/callback?code=51d5d63ae28783aecd59e7834be2c637a9ee260f241b191565aa10fe380471db
     * The code needs to be saved in the same secret as before,
     i.e. **'code': '51d5d63ae28783aecd59e7834be2c637a9ee260f241b191565aa10fe380471db'**
@@ -41,6 +40,7 @@ The `create_company` function will, per the Gusto docs:
 The function will return an account claim url from Gusto, which allows a user to complete their account
 setup inside of Gusto.
 
+USE CASE--ONLY CERTAIN PARAMETERS SO FAR.
 The following is the minimum accepted payload that can be used to create a company. For more fields please see Gusto's
 docs.
 ```
@@ -60,11 +60,10 @@ json files returned are as follows:
 
 This endpoint returns all payrolls for a specific company, current and past.
 
-**Pass in the `company_id` and `secret_id` in raw json as shown below:**
+**Pass in the `company_id` in raw json as shown below:**
 ```
 {
- "company_id": "company id",
- "secret_id": "the name of the secret you created earlier"
+ "company_id": "company id"
 }
 ```
 
