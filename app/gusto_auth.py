@@ -17,10 +17,8 @@ def handle_error(e):
 def main(path):
     secret_id = os.environ['SECRET_ID']
     client = boto3.client('secretsmanager')
-    # body = json.loads(event['body'])
-    # path = body['path']
+
     try:
-        # will get secret_id from functions that need to authenticate with this layer. currently hard-coded
         response = client.get_secret_value(
             SecretId=secret_id
         )

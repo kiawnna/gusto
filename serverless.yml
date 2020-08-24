@@ -42,7 +42,6 @@ resources:
 
 
 functions:
-  # TODO: Check and see of auth is handled for create_company.
   create_company:
     handler: app/functions/create_company.main
     events:

@@ -10,6 +10,7 @@ Initially, a secret needs to be stored in AWS Secrets Manager, as plain text jso
   integration, the user will be returned to this url with the code parameter set to the authorization > code."
 }
 ```
+Name your secret `gusto_auth`.
 ________________
 ## Authentication
 Gusto outlines the authentication flow the following way:
@@ -40,11 +41,10 @@ The `create_company` function will, per the Gusto docs:
 The function will return an account claim url from Gusto, which allows a user to complete their account
 setup inside of Gusto.
 
-USE CASE--ONLY CERTAIN PARAMETERS SO FAR.
-The following is the minimum accepted payload that can be used to create a company. For more fields please see Gusto's
-docs.
+The following is the accepted payload that can be used to create a company. Pass in your `api_token` inside the payload.
 ```
 {
+  "api_token": "your api_token",
   "first_name": "user's first name",
   "last_name": "user's last name",
   "email": "user's email",
@@ -52,33 +52,16 @@ docs.
 }
 ```
 ### POST `payrolls`
-Calling the `payrolls` endpoint will store three json objects in an S3 bucket created upon initial deployment. The three
-json files returned are as follows:
-- A replica of the entire output from calling the Gusto payrolls endpoint
-- A file containing **only** employee compensation information
-- A file containing **only** the other payroll details not associated with employee compensation
+Calling the `payrolls` endpoint will store a json object of the most recent payroll information for all employees. See
+Gusto docs for a complete representation of what is returned. An employee's rate is also returned in this call.
 
-This endpoint returns all payrolls for a specific company, current and past.
-
+This endpoint returns all payrolls for a specific company.
 **Pass in the `company_id` in raw json as shown below:**
 ```
 {
  "company_id": "company id"
 }
 ```
-
--------------------------------------------------
-# EXTRA STUFF
 ### POST `companies`
 If you do not know the company id for the company you'd like to fetch payrolls for, call the `companies` route, which
 lists all companies and their information, including ids.
-
-You can also obtain all company details about a specific company associated with your account by calling passing in the
-company id as raw json, shown below:
-```
-{
- "company_id": "company id"
-}
-```
-
-## MAYBE COMPANIES NEEDS TO BE POST?

@@ -4,64 +4,65 @@ import boto3
 from datetime import datetime
 import os
 import botocore
-BUCKET = os.environ['BUCKET']
 
 
 def main(event, context):
+    bucket = os.environ['BUCKET']
     s3 = boto3.client('s3')
     body = json.loads(event['body'])
     company_id = body['company_id']
-    path = f'companies/{company_id}/payrolls'
+    path = f'companies/{company_id}'
     try:
-        response = gusto_auth.main(path)
-        payload = json.loads(response['body'])
-        all_payrolls = dict(payload[0])
+        employees_call = gusto_auth.main(f'{path}/employees')
+        get_employees = json.loads(employees_call['body'])
 
-        all_payrolls['name'] = 'all_payrolls_information'
-        employee_comps = {k: v for (k, v) in all_payrolls.items() if 'employee_compensations' in k}
+        payrolls_call = gusto_auth.main(f'{path}/payrolls')
+        get_payrolls = json.loads(payrolls_call['body'])
 
-        employee_comps['name'] = 'employee_compensation_information'
-        keys = {'totals', "version", "payroll_deadline", "check_date", "processed", "payroll_id", "pay_period"}
+        start_dates = []
+        for payroll in get_payrolls:
+            start_date = payroll['pay_period']['start_date']
+            start_dates.append(start_date)
+            most_recent_start_date = max(start_dates)
+            if payroll['pay_period']['start_date'] == most_recent_start_date:
+                most_recent_payroll = payroll
 
-        payroll_details = {k: v for (k, v) in all_payrolls.items() if k in keys}
-        payroll_details['name'] = 'other_payroll_details'
+        most_recent_payroll['name'] = 'all_payroll_information'
 
-        now = datetime.now().strftime("%Y/%m/%d/%H:%M:%S")
-        all_objects = [employee_comps, all_payrolls, payroll_details]
+        employee_comps = most_recent_payroll['employee_compensations']
 
-        for x in all_objects:
-            name = x['name']
-            s3.put_object(
-                Body=json.dumps(x),
-                Bucket=BUCKET,
-                Key=f'{name}/{now}.json'
-            )
+        for employee in get_employees:
+            for jobs in employee['jobs']:
+                for nemployee in employee_comps:
+                    if nemployee['employee_id'] == employee['id']:
+                        for njob in nemployee['hourly_compensations']:
+                            if njob['job_id'] == jobs['id']:
+                                njob['rate'] = jobs['rate']
+
+        now = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+
+        s3.put_object(
+            Body=json.dumps(most_recent_payroll),
+            Bucket=bucket,
+            Key=f'payroll-start-date-{max(start_dates)}/{now}.json'
+        )
         return {
             'statusCode': 200,
-            'body': json.dumps(f'Your json files have been uploaded to bucket {BUCKET}.')
+            'body': json.dumps(f'Your json files have been uploaded to bucket {bucket}.')
         }
 
     except botocore.exceptions.ParamValidationError as error:
         raise ValueError('The parameters you provided are incorrect: {}'.format(error))
-    # except s3.exceptions.ResourceNotFoundException as e:
-    #     message = e.response['Error']['Message']
-    #     status_code = e.response['ResponseMetadata']['HTTPStatusCode']
-    #     return {
-    #         "statusCode": status_code,
-    #         "body": message
-    #     }
-    # except Exception as e:
-    #     return str(e)
-    #
-    # all_payrolls = payload[0]
-    #
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'body': str(e)
+        }
 
     # Use below to return the dictionaries in payload via postman.
     # return {
     #     'statusCode': 200,
-    #     'body': json.dumps({
-    #         'employee_compensations': employee_comps,
-    #         # 'other_payroll_details': list(payroll_details),
-    #         'all_payrolls': all_payrolls
-    #     })
+    #     'body': json.dumps({ most_recent_payroll })
     # }
+
+    # employee_comps = {k: v for (k, v) in most_recent_payroll.items() if 'employee_compensations' in k}

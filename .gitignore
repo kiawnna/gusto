@@ -18,6 +18,7 @@ var/
 *.egg
 node_modules/*
 venv/*
+*.idea
 
 # Serverless directories
 .serverless
