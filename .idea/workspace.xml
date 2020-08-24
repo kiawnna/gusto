@@ -20,18 +20,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5182c11b-6a15-4f78-8dbf-5f95ba9e6511" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/functions/companies.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/functions/companies.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/functions/employees.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/functions/payrolls.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/functions/payrolls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/gusto_auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/gusto_auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/is-docker/license" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/is-docker/license" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/is-docker/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/is-docker/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/is-docker/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/is-docker/readme.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/serverless-python-requirements/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/serverless-python-requirements/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/serverless.yml" beforeDir="false" afterPath="$PROJECT_DIR$/serverless.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,7 +78,7 @@
       <workItem from="1597144161763" duration="3874000" />
       <workItem from="1597191370380" duration="2097000" />
       <workItem from="1597365187257" duration="43746000" />
-      <workItem from="1597969419796" duration="21405000" />
+      <workItem from="1597969419796" duration="22516000" />
     </task>
     <servers />
   </component>

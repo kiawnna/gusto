@@ -32,12 +32,22 @@ def main(event, context):
         employee_comps = most_recent_payroll['employee_compensations']
 
         for employee in get_employees:
-            for jobs in employee['jobs']:
-                for nemployee in employee_comps:
-                    if nemployee['employee_id'] == employee['id']:
+            for nemployee in employee_comps:
+                if nemployee['employee_id'] == employee['id']:
+                    for jobs in employee['jobs']:
                         for njob in nemployee['hourly_compensations']:
                             if njob['job_id'] == jobs['id']:
                                 njob['rate'] = jobs['rate']
+
+# TODO: REVIEW THIS FROM STACKOVERFLOW. IT REQUIRES IMPORTING ANOTHER DEPENDENCY THOUGH
+#         from itertools import product
+#
+#         for employee, nemployee in product(get_employees, employee_comps):
+#             if nemployee['employee_id'] == employee['id']:
+#                 for jobs, njob in product(employee['jobs'],
+#                                           nemployee['hourly_compensations']):
+#                     if njob['job_id'] == jobs['id']:
+#                         njob['rate'] = jobs['rate']
 
         now = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
 
@@ -64,5 +74,3 @@ def main(event, context):
     #     'statusCode': 200,
     #     'body': json.dumps({ most_recent_payroll })
     # }
-
-    # employee_comps = {k: v for (k, v) in most_recent_payroll.items() if 'employee_compensations' in k}
