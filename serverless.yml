@@ -1,5 +1,4 @@
 service: gustov2
-# TODO: ACCOUNT ID NEEDS TO BE ENV VARIABLE--CURRENTLY HARDCODED IN BUCKETNAME.
 provider:
   name: aws
   runtime: python3.8
@@ -7,7 +6,7 @@ provider:
   environment:
     BUCKET: ${self:resources.Resources.GustoBucket.Properties.BucketName}
     SECRET_ID: gusto_auth
-#    ACCOUNT_ID: 266245855374
+
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -32,7 +31,7 @@ resources:
     GustoBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: gusto-payrolls-266245855374
+        BucketName: InsertAUniqueBucketNameHere
         PublicAccessBlockConfiguration:
           BlockPublicAcls: true
           BlockPublicPolicy: true
